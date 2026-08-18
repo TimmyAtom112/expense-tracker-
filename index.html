@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>NYSC Expense Tracker</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+</head>
+
+<body>
+
+    <header>
+        <h1>NYSC Expense Tracker</h1>
+        <p>Manage your money. Track your spending.</p>
+    </header>
+
+    <main>
+
+        <!-- Dashboard -->
+        <section class="dashboard">
+
+            <div class="summary-card">
+                <h3>Total Income</h3>
+                <p id="total-income">₦0</p>
+            </div>
+
+            <div class="summary-card">
+                <h3>Total Expenses</h3>
+                <p id="total-expenses">₦0</p>
+            </div>
+
+            <div class="summary-card">
+                <h3>Balance</h3>
+                <p id="balance">₦0</p>
+            </div>
+
+        </section>
+        
+        <!-- MONTHLY BUDGET -->
+
+<section class="budget-section">
+
+    <h2>Monthly Budget</h2>
+
+    <div class="budget-form">
+
+        <input
+            type="number"
+            id="budget-input"
+            placeholder="Enter monthly budget"
+            min="1"
+        >
+
+        <button id="save-budget">
+            Set Budget
+        </button>
+
+    </div>
+
+    <div class="budget-info">
+
+        <div>
+            <span>Budget</span>
+            <strong id="budget-amount">
+                ₦0
+            </strong>
+        </div>
+        
+        <div class="budget-progress-container">
+
+    <div class="budget-progress-bar" id="budget-progress-bar"></div>
+
+</div>
+
+<p class="budget-message" id="budget-message">
+    Set a budget to start tracking your spending.
+</p>
+
+        <div>
+            <span>Spent</span>
+            <strong id="budget-spent">
+                ₦0
+            </strong>
+        </div>
+
+        <div>
+            <span>Remaining</span>
+            <strong id="budget-remaining">
+                ₦0
+            </strong>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- SPENDING BREAKDOWN -->
+
+<section class="spending-section">
+
+    <h2>Spending Breakdown</h2>
+
+    <div id="category-breakdown">
+
+        <!-- Categories will appear here -->
+
+    </div>
+    
+    <div class="chart-container">
+    <canvas id="spending-chart"></canvas>
+</div>
+
+</section>
+
+
+        <!-- Add Transaction -->
+        <section class="transaction-form">
+
+            <h2>Add Transaction</h2>
+
+            <form id="expense-form">
+
+                <input
+                    type="text"
+                    id="description"
+                    placeholder="Description"
+                    required
+                >
+
+                <input
+                    type="number"
+                    id="amount"
+                    placeholder="Amount"
+                    required
+                >
+                
+                <label for="date">Date</label>
+
+                <input
+                   type="date"
+                    id="date" required
+                >
+
+                <select id="type">
+                    <option value="expense">Expense</option>
+                    <option value="income">Income</option>
+                </select>
+
+                <select id="category">
+                    <option value="food">Food</option>
+                    <option value="transport">Transport</option>
+                    <option value="data">Data</option>
+                    <option value="accommodation">Accommodation</option>
+                    <option value="other">Other</option>
+                </select>
+
+                <button type="submit">
+                    Add Transaction
+                </button>
+
+            </form>
+
+        </section>
+
+
+        <!-- Transactions -->
+        <section class="transactions">
+
+            <h2>Recent Transactions</h2>
+
+            <div id="transaction-list">
+                <!-- Transactions will appear here -->
+            </div>
+
+        </section>
+
+    </main>
+    
+    <!-- EDIT TRANSACTION MODAL -->
+
+<div class="modal" id="edit-modal">
+
+    <div class="modal-content">
+
+        <div class="modal-header">
+            <h2>Edit Transaction</h2>
+
+            <button
+                type="button"
+                class="close-modal"
+                id="close-modal">
+                &times;
+            </button>
+        </div>
+
+        <form id="edit-form">
+
+            <input type="hidden" id="edit-id">
+
+            <label for="edit-description">
+                Description
+            </label>
+
+            <input
+                type="text"
+                id="edit-description"
+                required
+            >
+            
+            <label for="source">Income Source</label>
+
+            <input
+                    type="text"
+                    id="source"
+                    placeholder="e.g. NYSC Allowance"
+            >
+
+            <label for="edit-amount">
+                Amount
+            </label>
+
+            <input
+                type="number"
+                id="edit-amount"
+                min="1"
+                required
+            >
+
+
+            <label for="edit-type">
+                Type
+            </label>
+
+            <select id="edit-type">
+
+                <option value="expense">
+                    Expense
+                </option>
+
+                <option value="income">
+                    Income
+                </option>
+
+            </select>
+
+
+            <label for="edit-category">
+                Category
+            </label>
+
+            <select id="edit-category">
+
+                <option value="food">Food</option>
+                <option value="transport">Transport</option>
+                <option value="data">Data</option>
+                <option value="accommodation">
+                    Accommodation
+                </option>
+                <option value="other">Other</option>
+
+            </select>
+
+
+            <div class="modal-actions">
+
+                <button
+                    type="button"
+                    id="cancel-edit">
+                    Cancel
+                </button>
+
+                <button type="submit">
+                    Save Changes
+                </button>
+
+            </div>
+            
+            <label for="date">Date</label>
+
+            <input
+                    type="date"
+                    id="date"
+                    required
+             >
+
+        </form>
+
+    </div>
+
+</div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="script.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("./service-worker.js")
+        .then(() => console.log("Service Worker registered successfully"))
+        .catch((error) =>
+          console.error("Service Worker registration failed:", error)
+        );
+    });
+  }
+</script>
+
+</body>
+</html>
