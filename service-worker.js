@@ -1,11 +1,13 @@
-const CACHE_NAME = "expense-tracker-v4";
+const CACHE_NAME = "expense-tracker-v3";
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./style.css",
   "./script.js",
-  "./manifest.json"
+  "./manifest.json",
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
 // Install new service worker
