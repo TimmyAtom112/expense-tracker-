@@ -1,4 +1,4 @@
-const CACHE_NAME = "expense-tracker-v4";
+const CACHE_NAME = "expense-tracker-v5";
 
 const FILES_TO_CACHE = [
   "./",
@@ -6,8 +6,8 @@ const FILES_TO_CACHE = [
   "./style.css",
   "./script.js",
   "./manifest.json",
-  "./icon-192-v4.png",
-  "./icon-512-v4.png"
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
 // Install new service worker
@@ -39,26 +39,37 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.match(event.request)
       .then((cachedResponse) => {
-        // Return cached file if available
+        // Use cached version first
         if (cachedResponse) {
           return cachedResponse;
         }
 
-        // Otherwise fetch from the internet
+        // Otherwise try the internet
         return fetch(event.request)
           .then((networkResponse) => {
 
-            // Don't cache unsuccessful responses
-            if (!networkResponse || networkResponse.status !== 200) {
+            // Only cache successful responses
+            if (
+              !networkResponse ||
+              networkResponse.status !== 200 ||
+              networkResponse.type !== "basic"
+            ) {
               return networkResponse;
             }
 
-            // Cache the new file
-            return caches.open(CACHE_NAME)
+            // Save successful response
+            const responseToCache = networkResponse.clone();
+
+            caches.open(CACHE_NAME)
               .then((cache) => {
-                cache.put(event.request, networkResponse.clone());
-                return networkResponse;
+                cache.put(event.request, responseToCache);
               });
+
+            return networkResponse;
+          })
+          .catch(() => {
+            // If offline and nothing is cached
+            return caches.match("./index.html");
           });
       })
   );
