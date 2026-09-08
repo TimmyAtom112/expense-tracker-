@@ -6,8 +6,8 @@ const FILES_TO_CACHE = [
   "./style.css",
   "./script.js",
   "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+  "./icon-192-v4.png",
+  "./icon-512-v4.png"
 ];
 
 // Install new service worker
