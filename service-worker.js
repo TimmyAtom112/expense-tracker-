@@ -1,65 +1,194 @@
-const CACHE_NAME = "expense-tracker-v7";
+const CACHE_NAME = "expense-tracker-v8";
 
-const FILES_TO_CACHE = [
-  "./",
-  "./index.html",
-  "./style.css",
-  "./script.js",
-  "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png"
+const APP_FILES = [
+"./",
+"./index.html",
+"./style.css",
+"./script.js",
+"./manifest.json",
+"./icon-192.png",
+"./icon-512.png"
 ];
 
-// Install new service worker
+/* ========================================
+INSTALL
+======================================== */
+
 self.addEventListener("install", (event) => {
-  event.waitUntil(
+
+event.waitUntil(
+
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(FILES_TO_CACHE))
-      .then(() => self.skipWaiting())
-  );
+
+        .then((cache) => {
+
+            return cache.addAll(APP_FILES);
+
+        })
+
+        .then(() => {
+
+            return self.skipWaiting();
+
+        })
+
+);
+
 });
 
-// Activate new service worker and remove old caches
+/* ========================================
+ACTIVATE
+======================================== */
+
 self.addEventListener("activate", (event) => {
-  event.waitUntil(
+
+event.waitUntil(
+
     caches.keys()
-      .then((cacheNames) => {
-        return Promise.all(
-          cacheNames
-            .filter((name) => name !== CACHE_NAME)
-            .map((name) => caches.delete(name))
-        );
-      })
-      .then(() => self.clients.claim())
-  );
+
+        .then((cacheNames) => {
+
+            return Promise.all(
+
+                cacheNames
+                    .filter(
+                        (name) =>
+                            name !== CACHE_NAME
+                    )
+                    .map(
+                        (name) =>
+                            caches.delete(name)
+                    )
+
+            );
+
+        })
+
+        .then(() => {
+
+            return self.clients.claim();
+
+        })
+
+);
+
 });
 
-// Network first, cache fallback
+/* ========================================
+FETCH
+======================================== */
+
 self.addEventListener("fetch", (event) => {
-  event.respondWith(
-    fetch(event.request)
-      .then((networkResponse) => {
 
-        if (
-          networkResponse &&
-          networkResponse.status === 200 &&
-          networkResponse.type === "basic"
-        ) {
-          const responseToCache = networkResponse.clone();
+const request =
+    event.request;
 
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              cache.put(event.request, responseToCache);
-            });
-        }
 
-        return networkResponse;
-      })
-      .catch(() => {
-        return caches.match(event.request)
-          .then((cachedResponse) => {
-            return cachedResponse || caches.match("./index.html");
-          });
-      })
-  );
+/* Only handle GET requests */
+
+if (request.method !== "GET") {
+
+    return;
+
+}
+
+
+const url =
+    new URL(request.url);
+
+
+/* Do not interfere with external websites/CDNs */
+
+if (
+    url.origin !== self.location.origin
+) {
+
+    return;
+
+}
+
+
+/*
+   Network first.
+
+   This makes sure the latest version
+   from GitHub is used whenever internet
+   is available.
+*/
+
+event.respondWith(
+
+    fetch(request, {
+        cache: "no-store"
+    })
+
+        .then((networkResponse) => {
+
+            if (
+                networkResponse &&
+                networkResponse.ok
+            ) {
+
+                const responseToCache =
+                    networkResponse.clone();
+
+
+                caches.open(CACHE_NAME)
+                    .then((cache) => {
+
+                        cache.put(
+                            request,
+                            responseToCache
+                        );
+
+                    });
+
+            }
+
+
+            return networkResponse;
+
+        })
+
+        .catch(() => {
+
+            return caches.match(request)
+
+                .then((cachedResponse) => {
+
+                    if (cachedResponse) {
+
+                        return cachedResponse;
+
+                    }
+
+
+                    if (
+                        request.mode === "navigate"
+                    ) {
+
+                        return caches.match(
+                            "./index.html"
+                        );
+
+                    }
+
+
+                    return new Response(
+                        "Offline",
+                        {
+                            status: 503,
+                            headers: {
+                                "Content-Type":
+                                    "text/plain"
+                            }
+                        }
+                    );
+
+                });
+
+        })
+
+);
+
 });
