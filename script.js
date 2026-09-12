@@ -1,138 +1,173 @@
-// ========================================
-// GET HTML ELEMENTS
-// ========================================
+/* ========================================
+GET HTML ELEMENTS
+======================================== */
 
 const form = document.getElementById("expense-form");
 
-const descriptionInput = document.getElementById("description");
-const amountInput = document.getElementById("amount");
-const typeInput = document.getElementById("type");
-const categoryInput = document.getElementById("category");
+const descriptionInput =
+document.getElementById("description");
 
-const transactionList =
-    document.getElementById("transaction-list");
+const amountInput =
+document.getElementById("amount");
 
-const totalIncome =
-    document.getElementById("total-income");
+const typeInput =
+document.getElementById("type");
 
-const totalExpenses =
-    document.getElementById("total-expenses");
+const categoryInput =
+document.getElementById("category");
 
-const balance =
-    document.getElementById("balance");
- 
-const categoryBreakdown =
-    document.getElementById("category-breakdown");
-    
-const spendingChart =
-    document.getElementById("spending-chart");
-
-const dateInput = document.getElementById("date");
+const dateInput =
+document.getElementById("transaction-date");
 
 const sourceInput =
-    document.getElementById("source");
+document.getElementById("source");
 
-// ========================================
-// EDIT MODAL ELEMENTS
-// ========================================
+const transactionList =
+document.getElementById("transaction-list");
+
+const totalIncome =
+document.getElementById("total-income");
+
+const totalExpenses =
+document.getElementById("total-expenses");
+
+const balance =
+document.getElementById("balance");
+
+const categoryBreakdown =
+document.getElementById("category-breakdown");
+
+const spendingChart =
+document.getElementById("spending-chart");
+
+/* ========================================
+EDIT MODAL
+======================================== */
 
 const editModal =
-    document.getElementById("edit-modal");
-    
+document.getElementById("edit-modal");
 
 const editForm =
-    document.getElementById("edit-form");
+document.getElementById("edit-form");
 
 const editId =
-    document.getElementById("edit-id");
+document.getElementById("edit-id");
 
 const editDescription =
-    document.getElementById("edit-description");
+document.getElementById("edit-description");
 
 const editAmount =
-    document.getElementById("edit-amount");
+document.getElementById("edit-amount");
+
+const editDate =
+document.getElementById("edit-date");
 
 const editType =
-    document.getElementById("edit-type");
+document.getElementById("edit-type");
 
 const editCategory =
-    document.getElementById("edit-category");
+document.getElementById("edit-category");
+
+const editSource =
+document.getElementById("edit-source");
 
 const closeModal =
-    document.getElementById("close-modal");
+document.getElementById("close-modal");
 
 const cancelEdit =
-    document.getElementById("cancel-edit");
+document.getElementById("cancel-edit");
 
-
-
-// ========================================
-// BUDGET ELEMENTS
-// ========================================
+/* ========================================
+BUDGET
+======================================== */
 
 const budgetInput =
-    document.getElementById("budget-input");
+document.getElementById("budget-input");
 
 const saveBudgetButton =
-    document.getElementById("save-budget");
+document.getElementById("save-budget");
 
 const budgetAmount =
-    document.getElementById("budget-amount");
+document.getElementById("budget-amount");
 
 const budgetSpent =
-    document.getElementById("budget-spent");
+document.getElementById("budget-spent");
 
 const budgetRemaining =
-    document.getElementById("budget-remaining");
+document.getElementById("budget-remaining");
 
 const budgetProgressBar =
-    document.getElementById("budget-progress-bar");
+document.getElementById("budget-progress-bar");
 
 const budgetMessage =
-    document.getElementById("budget-message");
+document.getElementById("budget-message");
 
-
-// ========================================
-// DATA
-// ========================================
+/* ========================================
+DATA
+======================================== */
 
 let transactions = [];
 
 let monthlyBudget = 0;
 
+let categoryChart = null;
 
-// ========================================
-// ADD TRANSACTION
-// ========================================
+/* ========================================
+TODAY'S DATE
+======================================== */
+
+function setDefaultDate() {
+
+const today =
+    new Date().toISOString().split("T")[0];
+
+dateInput.value = today;
+
+}
+
+/* ========================================
+ADD TRANSACTION
+======================================== */
 
 form.addEventListener("submit", function(event) {
 
-    event.preventDefault();
+event.preventDefault();
 
-    const description =
-        descriptionInput.value.trim();
+const description =
+    descriptionInput.value.trim();
 
-    const amount =
-        Number(amountInput.value);
+const amount =
+    Number(amountInput.value);
 
-    const type =
-        typeInput.value;
+const type =
+    typeInput.value;
 
-    const category =
-        categoryInput.value;
+const category =
+    categoryInput.value;
 
+const date =
+    dateInput.value;
 
-    // Make sure amount is valid
-
-    if (description === "" || amount <= 0) {
-
-        alert("Please enter a valid description and amount.");
-
-        return;
-    }
+const source =
+    sourceInput.value.trim();
 
 
-    const transaction = {
+if (
+    description === "" ||
+    amount <= 0 ||
+    !date
+) {
+
+    alert(
+        "Please enter a valid description, amount and date."
+    );
+
+    return;
+
+}
+
+
+const transaction = {
 
     id: Date.now(),
 
@@ -144,175 +179,254 @@ form.addEventListener("submit", function(event) {
 
     category: category,
 
-    date: dateInput.value,
+    date: date,
 
-    source: sourceInput.value.trim()
+    source: source
 
 };
 
 
-    transactions.push(transaction);
+transactions.push(transaction);
 
+saveTransactions();
 
-    // Save data
+refreshApp();
 
-    saveTransactions();
+form.reset();
 
-
-    // Update everything
-
-    displayTransactions();
-
-    updateSummary();
-
-    updateBudget();
-    
-    updateCategoryBreakdown();
-    
-    updateSpendingChart();
-
-
-    // Clear form
-
-    form.reset();
+setDefaultDate();
 
 });
 
-
-// ========================================
-// DISPLAY TRANSACTIONS
-// ========================================
+/* ========================================
+DISPLAY TRANSACTIONS
+======================================== */
 
 function displayTransactions() {
 
-    transactionList.innerHTML = "";
+transactionList.innerHTML = "";
 
 
-    transactions.forEach(function(transaction) {
+if (transactions.length === 0) {
 
-        const transactionElement =
-            document.createElement("div");
+    transactionList.innerHTML = `
+        <p class="no-expenses">
+            No transactions recorded yet.
+        </p>
+    `;
 
-
-        transactionElement.classList.add(
-            "transaction-item"
-        );
-
-
-        const amountClass =
-            transaction.type === "income"
-                ? "income"
-                : "expense";
-
-
-        const amountSign =
-            transaction.type === "income"
-                ? "+"
-                : "-";
-
-
-        transactionElement.innerHTML = `
-
-            <div class="transaction-info">
-
-                <h3>
-                    ${transaction.description}
-                </h3>
-
-                <p>
-    ${transaction.category}
-    ${transaction.date ? " • " + transaction.date : ""}
-</p>
-
-${transaction.source ? `
-    <small>Source: ${transaction.source}</small>
-` : ""}
-
-            </div>
-
-
-            <div class="transaction-right">
-
-                <span
-                    class="transaction-amount ${amountClass}">
-
-                    ${amountSign}
-                    ₦${transaction.amount.toLocaleString()}
-
-                </span>
-
-
-                <button
-                    class="edit-btn"
-                    onclick="editTransaction(${transaction.id})">
-
-                    Edit
-
-                </button>
-
-
-                <button
-                    class="delete-btn"
-                    onclick="deleteTransaction(${transaction.id})">
-
-                    Delete
-
-                </button>
-
-            </div>
-
-        `;
-
-
-        transactionList.appendChild(
-            transactionElement
-        );
-
-    });
+    return;
 
 }
 
 
-// ========================================
-// DELETE TRANSACTION
-// ========================================
+const sortedTransactions =
+    [...transactions].sort(
+        (a, b) => b.id - a.id
+    );
+
+
+sortedTransactions.forEach(function(transaction) {
+
+    const transactionElement =
+        document.createElement("div");
+
+
+    transactionElement.classList.add(
+        "transaction-item"
+    );
+
+
+    const amountClass =
+        transaction.type === "income"
+            ? "income"
+            : "expense";
+
+
+    const amountSign =
+        transaction.type === "income"
+            ? "+"
+            : "-";
+
+
+    const sourceHTML =
+        transaction.source
+            ? `<small>Source: ${escapeHTML(
+                transaction.source
+            )}</small>`
+            : "";
+
+
+    transactionElement.innerHTML = `
+
+        <div class="transaction-info">
+
+            <h3>
+                ${escapeHTML(
+                    transaction.description
+                )}
+            </h3>
+
+            <p>
+                ${escapeHTML(
+                    transaction.category || "Other"
+                )}
+
+                ${
+                    transaction.date
+                        ? " • " +
+                          escapeHTML(
+                              transaction.date
+                          )
+                        : ""
+                }
+            </p>
+
+            ${sourceHTML}
+
+        </div>
+
+        <div class="transaction-right">
+
+            <span
+                class="transaction-amount ${amountClass}">
+
+                ${amountSign}
+                ₦${Number(
+                    transaction.amount
+                ).toLocaleString()}
+
+            </span>
+
+            <button
+                type="button"
+                class="edit-btn"
+                onclick="editTransaction(${transaction.id})">
+
+                Edit
+
+            </button>
+
+            <button
+                type="button"
+                class="delete-btn"
+                onclick="deleteTransaction(${transaction.id})">
+
+                Delete
+
+            </button>
+
+        </div>
+
+    `;
+
+
+    transactionList.appendChild(
+        transactionElement
+    );
+
+});
+
+}
+
+/* ========================================
+DELETE TRANSACTION
+======================================== */
 
 function deleteTransaction(id) {
 
-    transactions =
-        transactions.filter(function(transaction) {
+transactions =
+    transactions.filter(
+        function(transaction) {
 
             return transaction.id !== id;
 
-        });
+        }
+    );
 
 
-    saveTransactions();
+saveTransactions();
 
-    displayTransactions();
-    updateSummary();
+refreshApp();
 
-    updateBudget();
+}
 
-    updateCategoryBreakdown();
-    
-    updateSpendingChart();
+/* ========================================
+EDIT TRANSACTION
+======================================== */
+
+function editTransaction(id) {
+
+const transaction =
+    transactions.find(
+        function(transaction) {
+
+            return transaction.id === id;
+
+        }
+    );
+
+
+if (!transaction) {
+
+    return;
 
 }
 
 
-// ========================================
-// EDIT TRANSACTION
-// ========================================
+editId.value =
+    transaction.id;
 
-function editTransaction(id) {
+editDescription.value =
+    transaction.description;
+
+editAmount.value =
+    transaction.amount;
+
+editDate.value =
+    transaction.date || "";
+
+editType.value =
+    transaction.type;
+
+editCategory.value =
+    normalizeCategory(
+        transaction.category
+    );
+
+editSource.value =
+    transaction.source || "";
+
+
+editModal.classList.add(
+    "active"
+);
+
+}
+
+/* ========================================
+SAVE EDITED TRANSACTION
+======================================== */
+
+editForm.addEventListener(
+"submit",
+function(event) {
+
+    event.preventDefault();
+
+
+    const id =
+        Number(editId.value);
+
 
     const transaction =
-        transactions.find(function(transaction) {
+        transactions.find(
+            function(transaction) {
 
-            return transaction.id === id;
+                return transaction.id === id;
 
-        });
+            }
+        );
 
 
     if (!transaction) {
@@ -322,463 +436,447 @@ function editTransaction(id) {
     }
 
 
-    editId.value =
-        transaction.id;
+    const newDescription =
+        editDescription.value.trim();
 
-    editDescription.value =
-        transaction.description;
+    const newAmount =
+        Number(editAmount.value);
 
-    editAmount.value =
-        transaction.amount;
+    const newDate =
+        editDate.value;
 
-    editType.value =
-        transaction.type;
+    const newType =
+        editType.value;
 
-    editCategory.value =
-        transaction.category;
+    const newCategory =
+        editCategory.value;
+
+    const newSource =
+        editSource.value.trim();
 
 
-    editModal.classList.add("active");
+    if (
+        newDescription === "" ||
+        newAmount <= 0 ||
+        !newDate
+    ) {
+
+        alert(
+            "Please enter valid transaction details."
+        );
+
+        return;
+
+    }
+
+
+    transaction.description =
+        newDescription;
+
+    transaction.amount =
+        newAmount;
+
+    transaction.date =
+        newDate;
+
+    transaction.type =
+        newType;
+
+    transaction.category =
+        newCategory;
+
+    transaction.source =
+        newSource;
+
+
+    saveTransactions();
+
+    refreshApp();
+
+    editModal.classList.remove(
+        "active"
+    );
 
 }
 
-
-// ========================================
-// SAVE EDITED TRANSACTION
-// ========================================
-
-editForm.addEventListener(
-    "submit",
-    function(event) {
-
-        event.preventDefault();
-
-
-        const id =
-            Number(editId.value);
-
-
-        const transaction =
-            transactions.find(function(transaction) {
-
-                return transaction.id === id;
-
-            });
-
-
-        if (!transaction) {
-
-            return;
-
-        }
-
-
-        transaction.description =
-            editDescription.value.trim();
-
-
-        transaction.amount =
-            Number(editAmount.value);
-
-
-        transaction.type =
-            editType.value;
-
-
-        transaction.category =
-            editCategory.value;
-
-
-        saveTransactions();
-
-        displayTransactions();
-    updateSummary();
-    
-    updateBudget();
-    
-    updateCategoryBreakdown();
-    
-    updateSpendingChart();
-
-
-        editModal.classList.remove(
-            "active"
-        );
-
-    }
 );
 
-
-// ========================================
-// CLOSE EDIT MODAL
-// ========================================
+/* ========================================
+CLOSE MODAL
+======================================== */
 
 closeModal.addEventListener(
-    "click",
-    function() {
+"click",
+function() {
 
-        editModal.classList.remove(
-            "active"
-        );
+    editModal.classList.remove(
+        "active"
+    );
 
-    }
+}
+
 );
-
 
 cancelEdit.addEventListener(
-    "click",
-    function() {
+"click",
+function() {
 
-        editModal.classList.remove(
-            "active"
-        );
+    editModal.classList.remove(
+        "active"
+    );
 
-    }
+}
+
 );
 
-
-// ========================================
-// UPDATE SUMMARY
-// ========================================
+/* ========================================
+UPDATE SUMMARY
+======================================== */
 
 function updateSummary() {
 
-    let income = 0;
+let income = 0;
 
-    let expenses = 0;
+let expenses = 0;
 
 
-    transactions.forEach(
-        function(transaction) {
+transactions.forEach(
+    function(transaction) {
 
-            if (
-                transaction.type === "income"
-            ) {
+        const amount =
+            Number(transaction.amount) || 0;
 
-                income += transaction.amount;
 
-            } else {
+        if (
+            transaction.type === "income"
+        ) {
 
-                expenses += transaction.amount;
+            income += amount;
 
-            }
+        } else {
+
+            expenses += amount;
 
         }
-    );
+
+    }
+);
 
 
-    const currentBalance =
-        income - expenses;
+const currentBalance =
+    income - expenses;
 
 
-    totalIncome.textContent =
-        `₦${income.toLocaleString()}`;
+totalIncome.textContent =
+    `₦${income.toLocaleString()}`;
 
+totalExpenses.textContent =
+    `₦${expenses.toLocaleString()}`;
 
-    totalExpenses.textContent =
-        `₦${expenses.toLocaleString()}`;
-
-
-    balance.textContent =
-        `₦${currentBalance.toLocaleString()}`;
+balance.textContent =
+    `₦${currentBalance.toLocaleString()}`;
 
 }
 
-
-// ========================================
-// SAVE TRANSACTIONS
-// ========================================
+/* ========================================
+SAVE TRANSACTIONS
+======================================== */
 
 function saveTransactions() {
 
-    localStorage.setItem(
-        "nyscTransactions",
-        JSON.stringify(transactions)
-    );
+localStorage.setItem(
+    "nyscTransactions",
+    JSON.stringify(transactions)
+);
 
 }
 
-
-// ========================================
-// LOAD TRANSACTIONS
-// ========================================
+/* ========================================
+LOAD TRANSACTIONS
+======================================== */
 
 function loadTransactions() {
 
-    const savedTransactions =
-        localStorage.getItem(
-            "nyscTransactions"
-        );
+const savedTransactions =
+    localStorage.getItem(
+        "nyscTransactions"
+    );
 
 
-    if (savedTransactions) {
+if (savedTransactions) {
+
+    try {
 
         transactions =
             JSON.parse(savedTransactions);
 
+        if (!Array.isArray(transactions)) {
+
+            transactions = [];
+
+        }
+
+    } catch (error) {
+
+        console.error(
+            "Could not load transactions:",
+            error
+        );
+
+        transactions = [];
+
     }
-
-
-    displayTransactions();
-    updateSummary();
-    
-    updateBudget();
-    
-    updateCategoryBreakdown();
-    
-    updateSpendingChart();
 
 }
 
 
-// ========================================
-// SAVE BUDGET
-// ========================================
+refreshApp();
+
+}
+
+/* ========================================
+SAVE BUDGET
+======================================== */
 
 saveBudgetButton.addEventListener(
-    "click",
-    function() {
+"click",
+function() {
 
-        const amount =
-            Number(budgetInput.value);
+    const amount =
+        Number(budgetInput.value);
 
 
-        if (amount <= 0) {
+    if (amount <= 0) {
 
-            alert(
-                "Please enter a valid budget."
-            );
+        alert(
+            "Please enter a valid budget."
+        );
+
+        return;
+
+    }
+
+
+    monthlyBudget =
+        amount;
+
+
+    localStorage.setItem(
+        "nyscMonthlyBudget",
+        monthlyBudget
+    );
+
+
+    updateBudget();
+
+    budgetInput.value = "";
+
+}
+
+);
+
+/* ========================================
+UPDATE BUDGET
+======================================== */
+
+function updateBudget() {
+
+let spent = 0;
+
+
+transactions.forEach(
+    function(transaction) {
+
+        if (
+            transaction.type === "expense"
+        ) {
+
+            spent +=
+                Number(transaction.amount) || 0;
+
+        }
+
+    }
+);
+
+
+const remaining =
+    monthlyBudget - spent;
+
+
+budgetAmount.textContent =
+    `₦${monthlyBudget.toLocaleString()}`;
+
+budgetSpent.textContent =
+    `₦${spent.toLocaleString()}`;
+
+budgetRemaining.textContent =
+    `₦${remaining.toLocaleString()}`;
+
+
+if (monthlyBudget <= 0) {
+
+    budgetProgressBar.style.width =
+        "0%";
+
+    budgetProgressBar.style.backgroundColor =
+        "#22c55e";
+
+    budgetMessage.textContent =
+        "Set a budget to start tracking your spending.";
+
+    return;
+
+}
+
+
+const percentage =
+    (spent / monthlyBudget) * 100;
+
+
+const progress =
+    Math.min(percentage, 100);
+
+
+budgetProgressBar.style.width =
+    `${progress}%`;
+
+
+if (percentage >= 100) {
+
+    budgetProgressBar.style.backgroundColor =
+        "#ef4444";
+
+    budgetMessage.textContent =
+        `You've exceeded your budget by ₦${Math.abs(
+            remaining
+        ).toLocaleString()}.`;
+
+} else if (percentage >= 80) {
+
+    budgetProgressBar.style.backgroundColor =
+        "#f97316";
+
+    budgetMessage.textContent =
+        `Warning: you've used ${percentage.toFixed(
+            0
+        )}% of your budget.`;
+
+} else if (percentage >= 60) {
+
+    budgetProgressBar.style.backgroundColor =
+        "#eab308";
+
+    budgetMessage.textContent =
+        `You've used ${percentage.toFixed(
+            0
+        )}% of your budget.`;
+
+} else {
+
+    budgetProgressBar.style.backgroundColor =
+        "#22c55e";
+
+    budgetMessage.textContent =
+        `You've used ${percentage.toFixed(
+            0
+        )}% of your budget.`;
+
+}
+
+}
+
+/* ========================================
+LOAD BUDGET
+======================================== */
+
+function loadBudget() {
+
+const savedBudget =
+    localStorage.getItem(
+        "nyscMonthlyBudget"
+    );
+
+
+if (savedBudget) {
+
+    monthlyBudget =
+        Number(savedBudget) || 0;
+
+}
+
+
+updateBudget();
+
+}
+
+/* ========================================
+CATEGORY BREAKDOWN
+======================================== */
+
+function updateCategoryBreakdown() {
+
+const categoryTotals = {};
+
+
+transactions.forEach(
+    function(transaction) {
+
+        if (
+            transaction.type !== "expense"
+        ) {
 
             return;
 
         }
 
 
-        monthlyBudget = amount;
+        const category =
+            normalizeCategory(
+                transaction.category
+            );
 
 
-        localStorage.setItem(
-            "nyscMonthlyBudget",
-            monthlyBudget
-        );
+        if (!categoryTotals[category]) {
+
+            categoryTotals[category] = 0;
+
+        }
 
 
-        updateBudget();
-
-
-        budgetInput.value = "";
+        categoryTotals[category] +=
+            Number(transaction.amount) || 0;
 
     }
 );
 
 
-// ========================================
-// UPDATE BUDGET
-// ========================================
-
-function updateBudget() {
-
-    let spent = 0;
+categoryBreakdown.innerHTML = "";
 
 
-    transactions.forEach(
-        function(transaction) {
-
-            if (
-                transaction.type === "expense"
-            ) {
-
-                spent += transaction.amount;
-
-            }
-
-        }
-    );
+const categories =
+    Object.keys(categoryTotals);
 
 
-    const remaining =
-        monthlyBudget - spent;
+if (categories.length === 0) {
 
+    categoryBreakdown.innerHTML = `
+        <p class="no-expenses">
+            No expenses recorded yet.
+        </p>
+    `;
 
-    // Display amounts
-
-    budgetAmount.textContent =
-        `₦${monthlyBudget.toLocaleString()}`;
-
-
-    budgetSpent.textContent =
-        `₦${spent.toLocaleString()}`;
-
-
-    budgetRemaining.textContent =
-        `₦${remaining.toLocaleString()}`;
-
-
-    // ====================================
-    // PROGRESS BAR
-    // ====================================
-
-    if (monthlyBudget <= 0) {
-
-        budgetProgressBar.style.width =
-            "0%";
-
-        budgetProgressBar.style.backgroundColor =
-            "#22c55e";
-
-        budgetMessage.textContent =
-            "Set a budget to start tracking your spending.";
-
-        return;
-
-    }
-
-
-    const percentage =
-        (spent / monthlyBudget) * 100;
-
-
-    const progress =
-        Math.min(percentage, 100);
-
-
-    budgetProgressBar.style.width =
-        `${progress}%`;
-
-
-    // ====================================
-    // PROGRESS BAR COLORS
-    // ====================================
-
-    if (percentage >= 100) {
-
-        // RED
-
-        budgetProgressBar.style.backgroundColor =
-            "#ef4444";
-
-
-        budgetMessage.textContent =
-            `You've exceeded your budget by ₦${Math.abs(
-                remaining
-            ).toLocaleString()}.`;
-
-
-    } else if (percentage >= 80) {
-
-        // ORANGE
-
-        budgetProgressBar.style.backgroundColor =
-            "#f97316";
-
-
-        budgetMessage.textContent =
-            `Warning: you've used ${percentage.toFixed(
-                0
-            )}% of your budget.`;
-
-
-    } else if (percentage >= 60) {
-
-        // YELLOW
-
-        budgetProgressBar.style.backgroundColor =
-            "#eab308";
-
-
-        budgetMessage.textContent =
-            `You've used ${percentage.toFixed(
-                0
-            )}% of your budget.`;
-
-
-    } else {
-
-        // GREEN
-
-        budgetProgressBar.style.backgroundColor =
-            "#22c55e";
-
-
-        budgetMessage.textContent =
-            `You've used ${percentage.toFixed(
-                0
-            )}% of your budget.`;
-
-    }
+    return;
 
 }
 
 
-// ========================================
-// LOAD BUDGET
-// ========================================
-
-function loadBudget() {
-
-    const savedBudget =
-        localStorage.getItem(
-            "nyscMonthlyBudget"
-        );
-
-
-    if (savedBudget) {
-
-        monthlyBudget =
-            Number(savedBudget);
-
-    }
-
-
-    updateBudget();
-
-}
-
-function updateCategoryBreakdown() {
-
-    const categoryTotals = {};
-
-    transactions.forEach(function(transaction) {
-
-        if (transaction.type === "expense") {
-
-            if (!categoryTotals[transaction.category]) {
-
-                categoryTotals[transaction.category] = 0;
-
-            }
-
-            categoryTotals[transaction.category] +=
-                transaction.amount;
-
-        }
-
-    });
-
-
-    categoryBreakdown.innerHTML = "";
-
-
-    const categories =
-        Object.keys(categoryTotals);
-
-
-    if (categories.length === 0) {
-
-        categoryBreakdown.innerHTML = `
-            <p class="no-expenses">
-                No expenses recorded yet.
-            </p>
-        `;
-
-        return;
-    }
-
-
-    categories.forEach(function(category) {
+categories.forEach(
+    function(category) {
 
         const categoryElement =
             document.createElement("div");
+
 
         categoryElement.classList.add(
             "category-item"
@@ -788,11 +886,13 @@ function updateCategoryBreakdown() {
         categoryElement.innerHTML = `
 
             <span class="category-name">
-                ${category}
+                ${escapeHTML(category)}
             </span>
 
             <span class="category-amount">
-                ₦${categoryTotals[category].toLocaleString()}
+                ₦${categoryTotals[
+                    category
+                ].toLocaleString()}
             </span>
 
         `;
@@ -802,62 +902,83 @@ function updateCategoryBreakdown() {
             categoryElement
         );
 
-    });
+    }
+);
 
 }
 
-let categoryChart = null;
+/* ========================================
+SPENDING CHART
+======================================== */
 
 function updateSpendingChart() {
 
-    const categoryTotals = {};
+const categoryTotals = {};
 
-    transactions.forEach(function(transaction) {
 
-        if (transaction.type === "expense") {
+transactions.forEach(
+    function(transaction) {
 
-            if (!categoryTotals[transaction.category]) {
+        if (
+            transaction.type !== "expense"
+        ) {
 
-                categoryTotals[transaction.category] = 0;
-
-            }
-
-            categoryTotals[transaction.category] +=
-                transaction.amount;
+            return;
 
         }
 
-    });
+
+        const category =
+            normalizeCategory(
+                transaction.category
+            );
 
 
-    const categories =
-        Object.keys(categoryTotals);
+        if (!categoryTotals[category]) {
 
-    const amounts =
-        Object.values(categoryTotals);
+            categoryTotals[category] = 0;
 
-
-    // Destroy old chart before creating a new one
-
-    if (categoryChart) {
-
-        categoryChart.destroy();
-
-    }
+        }
 
 
-    // Don't create a chart if there are no expenses
-
-    if (categories.length === 0) {
-
-        return;
+        categoryTotals[category] +=
+            Number(transaction.amount) || 0;
 
     }
+);
 
 
-    categoryChart = new Chart(
+const categories =
+    Object.keys(categoryTotals);
+
+const amounts =
+    Object.values(categoryTotals);
+
+
+if (categoryChart) {
+
+    categoryChart.destroy();
+
+    categoryChart = null;
+
+}
+
+
+if (
+    categories.length === 0 ||
+    typeof Chart === "undefined"
+) {
+
+    return;
+
+}
+
+
+categoryChart =
+    new Chart(
         spendingChart,
         {
+
             type: "doughnut",
 
             data: {
@@ -895,23 +1016,83 @@ function updateSpendingChart() {
 
 }
 
-// ========================================
-// START APPLICATION
-// ========================================
+/* ========================================
+NORMALIZE OLD CATEGORY VALUES
+======================================== */
+
+function normalizeCategory(category) {
+
+if (!category) {
+
+    return "Other";
+
+}
+
+
+const value =
+    String(category).toLowerCase();
+
+
+const categoryMap = {
+
+    food: "Food",
+
+    transport: "Transport",
+
+    data: "Data",
+
+    accommodation: "Accommodation",
+
+    betting: "Betting",
+
+    other: "Other"
+
+};
+
+
+return categoryMap[value] || "Other";
+
+}
+
+/* ========================================
+ESCAPE HTML
+======================================== */
+
+function escapeHTML(value) {
+
+return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+
+}
+
+/* ========================================
+REFRESH EVERYTHING
+======================================== */
+
+function refreshApp() {
+
+displayTransactions();
+
+updateSummary();
+
+updateBudget();
+
+updateCategoryBreakdown();
+
+updateSpendingChart();
+
+}
+
+/* ========================================
+START APPLICATION
+======================================== */
+
+setDefaultDate();
 
 loadBudget();
 
 loadTransactions();
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("./service-worker.js")
-      .then(() => {
-        console.log("Service Worker registered successfully!");
-      })
-      .catch((error) => {
-        console.error("Service Worker registration failed:", error);
-      });
-  });
-}
