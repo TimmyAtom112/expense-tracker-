@@ -1,4 +1,4 @@
-const CACHE_NAME = "expense-tracker-v6";
+const CACHE_NAME = "expense-tracker-v7";
 
 const FILES_TO_CACHE = [
   "./",
@@ -34,42 +34,31 @@ self.addEventListener("activate", (event) => {
   );
 });
 
-// Handle requests
+// Network first, cache fallback
 self.addEventListener("fetch", (event) => {
   event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        // Use cached version first
-        if (cachedResponse) {
-          return cachedResponse;
+    fetch(event.request)
+      .then((networkResponse) => {
+
+        if (
+          networkResponse &&
+          networkResponse.status === 200 &&
+          networkResponse.type === "basic"
+        ) {
+          const responseToCache = networkResponse.clone();
+
+          caches.open(CACHE_NAME)
+            .then((cache) => {
+              cache.put(event.request, responseToCache);
+            });
         }
 
-        // Otherwise try the internet
-        return fetch(event.request)
-          .then((networkResponse) => {
-
-            // Only cache successful responses
-            if (
-              !networkResponse ||
-              networkResponse.status !== 200 ||
-              networkResponse.type !== "basic"
-            ) {
-              return networkResponse;
-            }
-
-            // Save successful response
-            const responseToCache = networkResponse.clone();
-
-            caches.open(CACHE_NAME)
-              .then((cache) => {
-                cache.put(event.request, responseToCache);
-              });
-
-            return networkResponse;
-          })
-          .catch(() => {
-            // If offline and nothing is cached
-            return caches.match("./index.html");
+        return networkResponse;
+      })
+      .catch(() => {
+        return caches.match(event.request)
+          .then((cachedResponse) => {
+            return cachedResponse || caches.match("./index.html");
           });
       })
   );
