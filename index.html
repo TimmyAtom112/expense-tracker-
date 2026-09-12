@@ -1,50 +1,41 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Expense Tracker</title>
 
-    <title>Expense Tracker</title>
+<link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
 
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#000000">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-</head>
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 
-<body>
+</head><body><header>
+    <h1>Expense Tracker</h1>
+    <p>Manage your money. Track your spending.</p>
+</header><main><!-- DASHBOARD -->
+<section class="dashboard">
 
-    <header>
-        <h1>Expense Tracker</h1>
-        <p>Manage your money. Track your spending.</p>
-    </header>
+    <div class="summary-card">
+        <h3>Total Income</h3>
+        <p id="total-income">₦0</p>
+    </div>
 
-    <main>
+    <div class="summary-card">
+        <h3>Total Expenses</h3>
+        <p id="total-expenses">₦0</p>
+    </div>
 
-        <!-- Dashboard -->
-        <section class="dashboard">
+    <div class="summary-card">
+        <h3>Balance</h3>
+        <p id="balance">₦0</p>
+    </div>
 
-            <div class="summary-card">
-                <h3>Total Income</h3>
-                <p id="total-income">₦0</p>
-            </div>
+</section>
 
-            <div class="summary-card">
-                <h3>Total Expenses</h3>
-                <p id="total-expenses">₦0</p>
-            </div>
 
-            <div class="summary-card">
-                <h3>Balance</h3>
-                <p id="balance">₦0</p>
-            </div>
-
-        </section>
-        
-        <!-- MONTHLY BUDGET -->
-
+<!-- MONTHLY BUDGET -->
 <section class="budget-section">
 
     <h2>Monthly Budget</h2>
@@ -58,7 +49,7 @@
             min="1"
         >
 
-        <button id="save-budget">
+        <button type="button" id="save-budget">
             Set Budget
         </button>
 
@@ -68,253 +59,269 @@
 
         <div>
             <span>Budget</span>
-            <strong id="budget-amount">
-                ₦0
-            </strong>
+            <strong id="budget-amount">₦0</strong>
         </div>
-        
-        <div class="budget-progress-container">
-
-    <div class="budget-progress-bar" id="budget-progress-bar"></div>
-
-</div>
-
-<p class="budget-message" id="budget-message">
-    Set a budget to start tracking your spending.
-</p>
 
         <div>
             <span>Spent</span>
-            <strong id="budget-spent">
-                ₦0
-            </strong>
+            <strong id="budget-spent">₦0</strong>
         </div>
 
         <div>
             <span>Remaining</span>
-            <strong id="budget-remaining">
-                ₦0
-            </strong>
+            <strong id="budget-remaining">₦0</strong>
         </div>
 
     </div>
 
+    <div class="budget-progress-container">
+        <div
+            class="budget-progress-bar"
+            id="budget-progress-bar">
+        </div>
+    </div>
+
+    <p class="budget-message" id="budget-message">
+        Set a budget to start tracking your spending.
+    </p>
+
 </section>
 
-<!-- SPENDING BREAKDOWN -->
 
+<!-- SPENDING BREAKDOWN -->
 <section class="spending-section">
 
     <h2>Spending Breakdown</h2>
 
     <div id="category-breakdown">
-
-        <!-- Categories will appear here -->
-
+        <!-- Categories appear here -->
     </div>
-    
+
     <div class="chart-container">
-    <canvas id="spending-chart"></canvas>
-</div>
+        <canvas id="spending-chart"></canvas>
+    </div>
 
 </section>
 
 
-        <!-- Add Transaction -->
-        <section class="transaction-form">
+<!-- ADD TRANSACTION -->
+<section class="transaction-form">
 
-            <h2>Add Transaction</h2>
+    <h2>Add Transaction</h2>
 
-            <form id="expense-form">
+    <form id="expense-form">
 
-                <input
-                    type="text"
-                    id="description"
-                    placeholder="Description"
-                    required
-                >
+        <input
+            type="text"
+            id="description"
+            placeholder="Description"
+            required
+        >
 
-                <input
-                    type="number"
-                    id="amount"
-                    placeholder="Amount"
-                    required
-                >
-                
-                <label for="date">Date</label>
+        <input
+            type="number"
+            id="amount"
+            placeholder="Amount"
+            min="1"
+            required
+        >
 
-                <input
-                   type="date"
-                    id="date" required
-                >
+        <label for="transaction-date">Date</label>
 
-                <select id="type">
-                    <option value="expense">Expense</option>
-                    <option value="income">Income</option>
-                </select>
+        <input
+            type="date"
+            id="transaction-date"
+            required
+        >
 
-                <select id="category">
-                    <option value="Food">Food</option>
-                    <option value="Transport">Transport</option>
-                    <option value="Data">Data</option>
-                    <option value="Accommodation">Accommodation</option>
-                    <option value="Betting">Betting</option>
-                    <option value="Other">Other</option>
-                </select>
+        <select id="type">
 
-                <button type="submit">
-                    Add Transaction
-                </button>
+            <option value="expense">
+                Expense
+            </option>
 
-            </form>
+            <option value="income">
+                Income
+            </option>
 
-        </section>
+        </select>
 
+        <select id="category">
 
-        <!-- Transactions -->
-        <section class="transactions">
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Data">Data</option>
+            <option value="Accommodation">Accommodation</option>
+            <option value="Betting">Betting</option>
+            <option value="Other">Other</option>
 
-            <h2>Recent Transactions</h2>
+        </select>
 
-            <div id="transaction-list">
-                <!-- Transactions will appear here -->
-            </div>
+        <input
+            type="text"
+            id="source"
+            placeholder="Income source (optional)"
+        >
 
-        </section>
+        <button type="submit">
+            Add Transaction
+        </button>
 
-    </main>
-    
-    <!-- EDIT TRANSACTION MODAL -->
+    </form>
 
-<div class="modal" id="edit-modal">
-
-    <div class="modal-content">
-
-        <div class="modal-header">
-            <h2>Edit Transaction</h2>
-
-            <button
-                type="button"
-                class="close-modal"
-                id="close-modal">
-                &times;
-            </button>
-        </div>
-
-        <form id="edit-form">
-
-            <input type="hidden" id="edit-id">
-
-            <label for="edit-description">
-                Description
-            </label>
-
-            <input
-                type="text"
-                id="edit-description"
-                required
-            >
-            
-            <label for="source">Income Source</label>
-
-            <input
-                    type="text"
-                    id="source"
-                    placeholder="e.g. NYSC Allowance"
-            >
-
-            <label for="edit-amount">
-                Amount
-            </label>
-
-            <input
-                type="number"
-                id="edit-amount"
-                min="1"
-                required
-            >
+</section>
 
 
-            <label for="edit-type">
-                Type
-            </label>
+<!-- TRANSACTIONS -->
+<section class="transactions">
 
-            <select id="edit-type">
+    <h2>Recent Transactions</h2>
 
-                <option value="expense">
-                    Expense
-                </option>
+    <div id="transaction-list">
+        <!-- Transactions appear here -->
+    </div>
 
-                <option value="income">
-                    Income
-                </option>
+</section>
 
-            </select>
+</main><!-- EDIT TRANSACTION MODAL --><div class="modal" id="edit-modal"><div class="modal-content">
 
+    <div class="modal-header">
 
-            <label for="edit-category">
-                Category
-            </label>
+        <h2>Edit Transaction</h2>
 
-            <select id="edit-category">
-
-                <option value="food">Food</option>
-                <option value="Transport">Transport</option>
-                <option value="data">Data</option>
-                <option value="Accommodation">
-                    Accommodation
-                </option>
-                <option value="Betting">
-                    Betting
-                </option>
-
-                <option value="Other">Other</option>
-
-            </select>
-
-
-            <div class="modal-actions">
-
-                <button
-                    type="button"
-                    id="cancel-edit">
-                    Cancel
-                </button>
-
-                <button type="submit">
-                    Save Changes
-                </button>
-
-            </div>
-            
-            <label for="date">Date</label>
-
-            <input
-                    type="date"
-                    id="date"
-                    required
-             >
-
-        </form>
+        <button
+            type="button"
+            class="close-modal"
+            id="close-modal">
+            &times;
+        </button>
 
     </div>
 
+    <form id="edit-form">
+
+        <input
+            type="hidden"
+            id="edit-id"
+        >
+
+        <label for="edit-description">
+            Description
+        </label>
+
+        <input
+            type="text"
+            id="edit-description"
+            required
+        >
+
+        <label for="edit-amount">
+            Amount
+        </label>
+
+        <input
+            type="number"
+            id="edit-amount"
+            min="1"
+            required
+        >
+
+        <label for="edit-date">
+            Date
+        </label>
+
+        <input
+            type="date"
+            id="edit-date"
+            required
+        >
+
+        <label for="edit-type">
+            Type
+        </label>
+
+        <select id="edit-type">
+
+            <option value="expense">
+                Expense
+            </option>
+
+            <option value="income">
+                Income
+            </option>
+
+        </select>
+
+        <label for="edit-category">
+            Category
+        </label>
+
+        <select id="edit-category">
+
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Data">Data</option>
+            <option value="Accommodation">Accommodation</option>
+            <option value="Betting">Betting</option>
+            <option value="Other">Other</option>
+
+        </select>
+
+        <label for="edit-source">
+            Income Source
+        </label>
+
+        <input
+            type="text"
+            id="edit-source"
+            placeholder="e.g. NYSC Allowance"
+        >
+
+        <div class="modal-actions">
+
+            <button
+                type="button"
+                id="cancel-edit">
+                Cancel
+            </button>
+
+            <button type="submit">
+                Save Changes
+            </button>
+
+        </div>
+
+    </form>
+
 </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="script.js"></script>
-<script>
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker
-        .register("./service-worker.js")
-        .then(() => console.log("Service Worker registered successfully"))
-        .catch((error) =>
-          console.error("Service Worker registration failed:", error)
-        );
-    });
-  }
-</script>
+</div><!-- CHART.JS --><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><!-- APP SCRIPT --><script src="script.js"></script><!-- SERVICE WORKER --><script>
+    if ("serviceWorker" in navigator) {
 
-</body>
+        window.addEventListener("load", () => {
+
+            navigator.serviceWorker
+                .register("./service-worker.js?v=8")
+                .then((registration) => {
+
+                    console.log(
+                        "Service Worker registered successfully."
+                    );
+
+                    registration.update();
+
+                })
+                .catch((error) => {
+
+                    console.error(
+                        "Service Worker registration failed:",
+                        error
+                    );
+
+                });
+
+        });
+
+    }
+</script></body>
 </html>
